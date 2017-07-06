@@ -1,0 +1,11 @@
+{
+    "name": "anexia/zf2-monitoring",
+    "description": "A zf2 module to monitor runtime (php, zf2) versions and composer package versions",
+    "version": "1.0",
+    "autoload": {
+        "psr-4": { "Anexia\\Monitoring\\": "src" }
+    },
+    "require": {
+        "composer/semver": "~1.4.2"
+    }
+}
