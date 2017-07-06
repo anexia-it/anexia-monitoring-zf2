@@ -48,9 +48,9 @@ class VersionService {
                  */
                 // get version information from packagist
                 $packagistUrl = 'https://packagist.org/packages/' . $name . '.json';
-                $packagistInfo = json_decode(file_get_contents($packagistUrl));
 
                 try {
+                    $packagistInfo = json_decode(file_get_contents($packagistUrl));
                     $versions = $packagistInfo->package->versions;
                 } catch (\Exception $e) {
                     $versions = array();
