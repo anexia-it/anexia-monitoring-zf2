@@ -31,7 +31,7 @@ class VersionService {
      *
      * @return array
      */
-    public function getModuleData()
+    public function getComposerPackageData()
     {
         $moduleVersions = array();
 

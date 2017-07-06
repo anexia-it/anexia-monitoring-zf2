@@ -37,7 +37,7 @@ class VersionMonitoringController extends AbstractRestfulController
         /** @var VersionService $versionService */
         $versionService = $this->getServiceLocator()->get('Anexia\Monitoring\Service\Version');
         $runtime = $versionService->getRuntimeData();
-        $modules = $versionService->getModuleData();
+        $modules = $versionService->getComposerPackageData();
 
         return new JsonModel(
             array (
