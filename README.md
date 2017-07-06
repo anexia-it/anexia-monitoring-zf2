@@ -8,7 +8,6 @@ is alive and working correctly.
 Install the module via composer, therefore adapt the "require" part of your composer.json:
 ```
 "require": {
-        ... // other required packages
         "anexia/zf2-monitoring": "1.0"
     },
 ```
@@ -17,7 +16,6 @@ In the projects application.config.php add the new module:
 ```
 return array(
     'modules' => array(
-        ... // other application modules
         'Anexia\Monitoring'
     )
 );
@@ -27,7 +25,6 @@ return array(
 In the projects local.php config file add the access token configuration:
 ```
 return array(
-    ... // other configurations
     'ANX_MONITORING_ACCESS_TOKEN' => '<custom_monitoring_token>'
 );
 ```
@@ -36,7 +33,6 @@ return array(
 In the projects local.php config file add the database connection configuration:
 ```
 return array(
-    ... // other configurations
     'db' => array(
         'host' => '<host>', // e.g. localhost
         'username' => '<username>',
@@ -52,7 +48,6 @@ return array(
 In the projects local.php config file add the database table to be checked on live (/up) monitoring:
 ```
 return array(
-    ... // other configurations
     'ANX_MONITORING_TABLE_TO_CHECK' => '<table_name>' // 'user' by default
 );
 ```
