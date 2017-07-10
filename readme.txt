@@ -13,9 +13,9 @@ The module registers some custom REST endpoints which can be used for monitoring
 **ANX_MONITORING_ACCESS_TOKEN** is defined, since this is used for authorization. The endpoints will return a 401
 HTTP_STATUS code if the token is not defined or invalid, and a 200.
 
-= Version monitoring of core, plugins and themes =
+= Version monitoring of core and composer packages =
 
-Returns all a list with platform and package information.
+Returns all a list with platform and module information.
 
 **Active permalinks**
 

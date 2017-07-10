@@ -1,7 +1,6 @@
 <?php
 namespace Anexia\Monitoring\Service;
 
-use Composer\Composer;
 use Zend\Db\Adapter\Adapter;
 
 /**
@@ -9,14 +8,11 @@ use Zend\Db\Adapter\Adapter;
  */
 class UpService {
 
-    /** string */
-    const DEFAULT_TABLE_TO_CHECK = 'user';
-
     /** @var Adapter */
     protected $adapter;
 
     /** @var string */
-    protected $tableToCheck = self::DEFAULT_TABLE_TO_CHECK;
+    protected $customDbCheckService;
 
     /** @var string[] */
     protected $errors = array();
@@ -24,14 +20,14 @@ class UpService {
     /**
      * UpService constructor.
      * @param Adapter $adapter
-     * @param string|null $tableToCheck
+     * @param UpCheckServiceInterface|null $customDbCheckService
      */
-    public function __construct(Adapter $adapter, $tableToCheck = null)
+    public function __construct(Adapter $adapter, UpCheckServiceInterface $customDbCheckService = null)
     {
         $this->adapter = $adapter;
 
-        if (!empty($tableToCheck)) {
-            $this->tableToCheck = $tableToCheck;
+        if ($customDbCheckService instanceof UpCheckServiceInterface) {
+            $this->customDbCheckService = $customDbCheckService;
         }
     }
 
@@ -49,16 +45,20 @@ class UpService {
             $this->errors[] = 'Database failure: Could not connect to db (error:' . $e->getMessage() . ')';
         }
 
-        // check table select
-        try {
-            $result = $this->adapter->query('SELECT * FROM ' . $this->tableToCheck, Adapter::QUERY_MODE_EXECUTE);
+        // hook for custom db checks
+        if ($this->customDbCheckService) {
+            $customErrors = array();
+            $customCheck = $this->customDbCheckService->check($customErrors);
 
-            if ($result->count() < 1) {
-                $this->errors[] = 'Database failure: Table "' . $this->tableToCheck . '" is empty';
+            if (!$customCheck || !empty($customErrors)) {
+                // custom db check failed and/or returned errors
+                if (empty($customErrors)) {
+                    // default error message, in case custom check failed without adding information to $customErrors
+                    $customErrors[] = 'Database failure: custom check was not successful!';
+                }
+
+                $this->errors = array_merge($this->errors, $customErrors);
             }
-        } catch (\Exception $e) {
-            $this->errors[] = 'Database failure: Could not select from table "' . $this->tableToCheck
-                . '" (error: ' . $e->getMessage() . ')';
         }
 
         if (!empty($this->errors)) {

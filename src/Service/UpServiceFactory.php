@@ -19,9 +19,16 @@ class UpServiceFactory implements FactoryInterface
     {
         /** @var Adapter $adapter */
         $adapter = $serviceLocator->get('Zend\Db\Adapter\Adapter');
-        $config = $serviceLocator->get('Config');
-        $tableToCheck = isset($config['ANX_MONITORING_TABLE_TO_CHECK']) ? $config['ANX_MONITORING_TABLE_TO_CHECK'] : null;
-        $upService = new UpService($adapter, $tableToCheck);
+
+        if ($serviceLocator->has('Anexia\Monitoring\Service\UpCheck')) {
+            // add an optional custom db check service
+            /** @var UpCheckServiceInterface $customDbCheckService */
+            $customDbCheckService = $serviceLocator->get('Anexia\Monitoring\Service\UpCheck');
+            $upService = new UpService($adapter, $customDbCheckService);
+        } else {
+            $upService = new UpService($adapter);
+        }
+
         return $upService;
     }
 }

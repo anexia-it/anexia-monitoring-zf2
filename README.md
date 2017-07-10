@@ -1,7 +1,7 @@
 # Anexia Monitoring
 
-A Zend Framework 2 plugin used to monitor updates for core, plugins and themes. It can be also used to check if the website
-is alive and working correctly.
+A Zend Framework 2 plugin used to monitor updates for core and composer packages. It can be also used to check
+if the website is alive and working correctly.
 
 ## Installation and configuration
 
@@ -44,13 +44,89 @@ return array(
 );
 ```
 
+### Custom DB Check for UpMonitoring (LiveMonitoring)
 
-In the projects local.php config file add the database table to be checked on live (/up) monitoring:
+The anexia/zf2-monitoring only checks the db connection / db availability.
+To add further db validation a customized service can be defined. This service must implement the 
+Anexia\Monitoring\Service\UpCheckServiceInterface and must be callable via 'Anexia\Monitoring\Service\UpCheck'.
+Therefore two steps are necessary:
+
+Add a new service class (and its factory) to the project tree, e.g.:
 ```
+// new service class /module/Application/Service/UpCheckService.php
+<?php
+namespace Application\Service;
+
+use Anexia\Monitoring\Service\UpCheckServiceInterface;
+
+class UpCheckService implements UpCheckServiceInterface
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function check(&$errors = array())
+    {
+        // add db check/validation here
+        /**
+         * e.g.:
+         *
+         * if ($success) {
+         *     return true;
+         * } else {
+         *     $errors[] = 'Database failure: something went wrong!';
+         *     return false;
+         * } 
+         */
+    }
+}
+```
+
+```
+// new service's factory class /module/Application/Service/UpCheckServiceFactory.php
+<?php
+namespace Application\Service;
+
+use Zend\ServiceManager\FactoryInterface;
+use Zend\ServiceManager\ServiceLocatorInterface;
+
+/**
+ * Class UpCheckServiceFactory
+ * @package Application\Service
+ */
+class UpCheckServiceFactory implements FactoryInterface
+{
+    /**
+     * (non-PHPdoc)
+     * @see \Zend\ServiceManager\FactoryInterface::createService()
+     */
+    public function createService(ServiceLocatorInterface $serviceLocator)
+    {
+        $upCheckService = new UpCheckService();
+        return $upCheckService;
+    }
+}
+```
+
+Declare the new service class to be used (via its factory) as 'Anexia\Monitoring\Service\UpCheck' in the service's
+module.config.php, e.g.:
+```
+// in module/Application/config/module.config.php
+<php
 return array(
-    'ANX_MONITORING_TABLE_TO_CHECK' => '<table_name>' // 'user' by default
+    'service_manager' => array(
+        'factories' => array(
+            'Anexia\Monitoring\Service\UpCheck' => 'Application\Service\UpCheckServiceFactory',
+        )
+    )
 );
 ```
+
+The customized service's 'check' method is automatically added to the anexia/zf2-monitoring module's db check. If the
+customized service's 'check' method returns false and/or adds content to its $error array (given as method parameter by
+reference), the anexia/zf2-monitoring module's db check will fail. 
+If the customized service's 'check' method returns false without giving any additional information in the $error array
+(array stays empty), the response will automatically add the default error message 
+'Database failure: custom check was not successful!' to the response. 
 
 ## Usage
 
@@ -58,13 +134,11 @@ The module registers some custom REST endpoints which can be used for monitoring
 **ANX_MONITORING_ACCESS_TOKEN** is defined, since this is used for authorization. The endpoints will return a 401
 HTTP_STATUS code if the token is not defined or invalid, and a 200.
 
-#### Version monitoring of core, plugins and themes
+#### Version monitoring of core and composer packages
 
-Returns all a list with platform and module information.
+Returns all a list with platform and composer package information.
 
-**URL:**
-* Active permalinks: `/anxapi/v1/modules/?access_token=custom_access_token`
-* Default: `/?rest_route=/anxapi/v1/modules/&access_token=custom_access_token`
+**URL:** `/anxapi/v1/modules/?access_token=custom_access_token`
 
 Response headers:
 ```
@@ -81,7 +155,7 @@ Response body:
    "runtime":{
       "platform":"php",
       "platform_version":"7.0.19",
-      "framework":"zend framework 2",
+      "framework":"zend",
       "framework_installed_version":"2.4",
       "framework_newest_version":"3.0.1"
    },
@@ -107,10 +181,9 @@ Response body:
 This endpoint can be used to verify if the application is alive and working correctly. It checks if the database
 connection is working and makes a query for users. It allows to register custom check by using hooks.
 
-**URL:**
-* Active permalinks: `/anxapi/v1/up/?access_token=custom_access_token`
-* Default: `/?rest_route=/anxapi/v1/up/&access_token=custom_access_token`
+**URL:** `/anxapi/v1/up/?access_token=custom_access_token`
 
+**Success**
 Response headers:
 ```
 Status Code: 200 OK
@@ -123,6 +196,36 @@ Content-Type: text/plain
 Response body:
 ```
 OK
+```
+
+**Custom DB Check Failure (no custom error message)**
+Response headers (custom check failed without additional error message):
+```
+Status Code: 500 Internal Server Error
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: true
+Allow: GET
+Content-Type: text/plain
+```
+
+Response body (containing default error message):
+```
+Database failure: something went wrong!
+```
+
+**Custom DB Check Failure (custom error message)**
+Response headers (custom check failed without additional error message):
+```
+Status Code: 500 Internal Server Error
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: true
+Allow: GET
+Content-Type: text/plain
+```
+
+Response body (containing custom error message):
+```
+This is an example for a custom db check error message!
 ```
 
 

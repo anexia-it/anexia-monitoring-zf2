@@ -20,7 +20,7 @@ class VersionService {
         return array(
             'platform' => 'php',
             'platform_version' => phpversion(),
-            'framework' => 'zend framework 2',
+            'framework' => 'zend',
             'framework_installed_version' => Version::VERSION,
             'framework_newest_version' => Version::getLatest()
         );
