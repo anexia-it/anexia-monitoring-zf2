@@ -50,7 +50,7 @@ class VersionService {
                 $packagistUrl = 'https://packagist.org/packages/' . $name . '.json';
 
                 try {
-                    $packagistInfo = json_decode(file_get_contents($packagistUrl));
+                    $packagistInfo = json_decode(@file_get_contents($packagistUrl));
                     $versions = $packagistInfo->package->versions;
                 } catch (\Exception $e) {
                     $versions = array();
@@ -69,11 +69,6 @@ class VersionService {
                             $latestStableNormVersNo = $normVersNo;
                         }
                     }
-                }
-
-                if ($latestStableVersNo === '') {
-                    // no stable version number was found on packagist
-                    $latestStableVersNo = 'unknown';
                 }
 
                 /**

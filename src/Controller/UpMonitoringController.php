@@ -25,7 +25,13 @@ class UpMonitoringController extends AbstractRestfulController
         if (!$authService->checkAccessToken($this->request)) {
             // no valid access_token given as GET parameter
             $this->response->setStatusCode(401);
-            $this->response->setContent('You are not authorized to do this');
+
+            return new JsonModel(
+                array(
+                    'code' => 'Unauthorized',
+                    'message' => 'You are not authorized to do this',
+                )
+            );
         }
 
         /** @var UpService $upService */
