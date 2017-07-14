@@ -5,14 +5,14 @@ if the website is alive and working correctly.
 
 ## Installation and configuration
 
-Install the module via composer, therefore adapt the "require" part of your composer.json:
+Install the module via composer, therefore adapt the ``require`` part of your ``composer.json``:
 ```
 "require": {
-        "anexia/zf2-monitoring": "1.0"
-    },
+    "anexia/zf2-monitoring": "1.0"
+},
 ```
 
-In the projects application.config.php add the new module:
+In the projects ``application.config.php`` add the new module:
 ```
 return array(
     'modules' => array(
@@ -21,16 +21,14 @@ return array(
 );
 ```
 
-
-In the projects local.php config file add the access token configuration:
+In the projects ``local.php`` config file add the access token configuration:
 ```
 return array(
     'ANX_MONITORING_ACCESS_TOKEN' => '<custom_monitoring_token>'
 );
 ```
 
-
-In the projects local.php config file add the database connection configuration:
+In the projects ``local.php`` config file add the database connection configuration:
 ```
 return array(
     'db' => array(
@@ -44,97 +42,13 @@ return array(
 );
 ```
 
-### Custom DB Check for UpMonitoring (LiveMonitoring)
-
-The anexia/zf2-monitoring only checks the db connection / db availability.
-To add further db validation a customized service can be defined. This service must implement the 
-Anexia\Monitoring\Service\UpCheckServiceInterface and must be callable via 'Anexia\Monitoring\Service\UpCheck'.
-Therefore two steps are necessary:
-
-Add a new service class (and its factory) to the project tree, e.g.:
-```
-// new service class /module/Application/Service/UpCheckService.php
-<?php
-namespace Application\Service;
-
-use Anexia\Monitoring\Service\UpCheckServiceInterface;
-
-class UpCheckService implements UpCheckServiceInterface
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function check(&$errors = array())
-    {
-        // add db check/validation here
-        /**
-         * e.g.:
-         *
-         * if ($success) {
-         *     return true;
-         * } else {
-         *     $errors[] = 'Database failure: something went wrong!';
-         *     return false;
-         * } 
-         */
-    }
-}
-```
-
-```
-// new service's factory class /module/Application/Service/UpCheckServiceFactory.php
-<?php
-namespace Application\Service;
-
-use Zend\ServiceManager\FactoryInterface;
-use Zend\ServiceManager\ServiceLocatorInterface;
-
-/**
- * Class UpCheckServiceFactory
- * @package Application\Service
- */
-class UpCheckServiceFactory implements FactoryInterface
-{
-    /**
-     * (non-PHPdoc)
-     * @see \Zend\ServiceManager\FactoryInterface::createService()
-     */
-    public function createService(ServiceLocatorInterface $serviceLocator)
-    {
-        $upCheckService = new UpCheckService();
-        return $upCheckService;
-    }
-}
-```
-
-Declare the new service class to be used (via its factory) as 'Anexia\Monitoring\Service\UpCheck' in the service's
-module.config.php, e.g.:
-```
-// in module/Application/config/module.config.php
-<php
-return array(
-    'service_manager' => array(
-        'factories' => array(
-            'Anexia\Monitoring\Service\UpCheck' => 'Application\Service\UpCheckServiceFactory',
-        )
-    )
-);
-```
-
-The customized service's 'check' method is automatically added to the anexia/zf2-monitoring module's db check. If the
-customized service's 'check' method returns false and/or adds content to its $error array (given as method parameter by
-reference), the anexia/zf2-monitoring module's db check will fail. 
-If the customized service's 'check' method returns false without giving any additional information in the $error array
-(array stays empty), the response will automatically add the default error message 
-'Database failure: custom check was not successful!' to the response. 
-
 ## Usage
 
 The module registers some custom REST endpoints which can be used for monitoring. Make sure that the
 **ANX_MONITORING_ACCESS_TOKEN** is defined, since this is used for authorization. The endpoints will return a 401
-HTTP_STATUS code if the token is not defined or invalid, and a 200.
+HTTP_STATUS code if the token is not defined or invalid, or will return a 200 HTTP_STATUS code if everything went well.
 
-#### Version monitoring of core and composer packages
+### Version monitoring of core and composer packages
 
 Returns all a list with platform and composer package information.
 
@@ -175,15 +89,13 @@ Response body:
 }
 ```
 
-
-#### Live monitoring
+### Live monitoring
 
 This endpoint can be used to verify if the application is alive and working correctly. It checks if the database
-connection is working and makes a query for users. It allows to register custom check by using hooks.
+connection is working. It allows to register custom checks by using hooks.
 
 **URL:** `/anxapi/v1/up/?access_token=custom_access_token`
 
-**Success**
 Response headers:
 ```
 Status Code: 200 OK
@@ -198,7 +110,8 @@ Response body:
 OK
 ```
 
-**Custom DB Check Failure (no custom error message)**
+**Custom up check failure (without custom error message):**
+
 Response headers (custom check failed without additional error message):
 ```
 Status Code: 500 Internal Server Error
@@ -210,10 +123,11 @@ Content-Type: text/plain
 
 Response body (containing default error message):
 ```
-Database failure: something went wrong!
+ERROR
 ```
 
-**Custom DB Check Failure (custom error message)**
+**Custom up check failure (with custom error message):**
+
 Response headers (custom check failed without additional error message):
 ```
 Status Code: 500 Internal Server Error
@@ -228,10 +142,92 @@ Response body (containing custom error message):
 This is an example for a custom db check error message!
 ```
 
+### Custom up check
+
+The ``anexia/zf2-monitoring`` only checks the DB connection / DB availability.
+To add further up checks a customized service can be defined. This service must implement the 
+``Anexia\Monitoring\Service\UpCheckServiceInterface`` and must be available as ``Anexia\Monitoring\Service\UpCheck``.
+Therefore two steps are necessary:
+
+Add a new service class (and its factory) to the project source code tree, e.g.:
+```php
+<?php
+// new service class /module/Application/Service/UpCheckService.php
+namespace Application\Service;
+
+use Anexia\Monitoring\Service\UpCheckServiceInterface;
+
+class UpCheckService implements UpCheckServiceInterface
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function check(&$errors = array())
+    {
+        // add db check/validation here
+        /**
+         * e.g.:
+         *
+         * if ($success) {
+         *     return true;
+         * } else {
+         *     $errors[] = 'Database failure: something went wrong!';
+         *     return false;
+         * } 
+         */
+    }
+}
+```
+
+```php
+<?php
+// new service's factory class /module/Application/Service/UpCheckServiceFactory.php
+namespace Application\Service;
+
+use Zend\ServiceManager\FactoryInterface;
+use Zend\ServiceManager\ServiceLocatorInterface;
+
+/**
+ * Class UpCheckServiceFactory
+ * @package Application\Service
+ */
+class UpCheckServiceFactory implements FactoryInterface
+{
+    /**
+     * (non-PHPdoc)
+     * @see \Zend\ServiceManager\FactoryInterface::createService()
+     */
+    public function createService(ServiceLocatorInterface $serviceLocator)
+    {
+        $upCheckService = new UpCheckService();
+        return $upCheckService;
+    }
+}
+```
+
+Declare the new service class to be used (via its factory) as ``Anexia\Monitoring\Service\UpCheck`` in the service's
+``module.config.php``, e.g.:
+```php
+<?php
+// in module/Application/config/module.config.php
+return array(
+    'service_manager' => array(
+        'factories' => array(
+            'Anexia\Monitoring\Service\UpCheck' => 'Application\Service\UpCheckServiceFactory',
+        )
+    )
+);
+```
+
+The customized service's ``check`` method is automatically added to the ``anexia/zf2-monitoring`` module's db check. If the
+customized service's ``check`` method returns ``false`` and/or adds content to its ``$error`` array (given as method parameter by
+reference), the ``anexia/zf2-monitoring`` module's up check will fail. 
+If the customized service's ``check`` method returns ``false`` without giving any additional information in the ``$error`` array
+(array stays empty), the response will automatically add the default error message ``ERROR`` to the response. 
 
 ## List of developers
 
-* Alexandra Bruckner, Lead developer
+* Alexandra Bruckner <ABruckner@anexia-it.com>, Lead developer
 
 ## Project related external resources
 

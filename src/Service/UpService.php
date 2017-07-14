@@ -54,7 +54,7 @@ class UpService {
                 // custom db check failed and/or returned errors
                 if (empty($customErrors)) {
                     // default error message, in case custom check failed without adding information to $customErrors
-                    $customErrors[] = 'Database failure: custom check was not successful!';
+                    $customErrors[] = 'ERROR';
                 }
 
                 $this->errors = array_merge($this->errors, $customErrors);
