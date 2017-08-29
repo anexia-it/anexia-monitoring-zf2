@@ -4,8 +4,8 @@ namespace Anexia\Monitoring\Service;
 /**
  * Class AuthorizationService
  */
-class AuthorizationService {
-
+class AuthorizationService
+{
     protected $accessToken;
 
     /**

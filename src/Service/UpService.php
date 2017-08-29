@@ -6,8 +6,8 @@ use Zend\Db\Adapter\Adapter;
 /**
  * Class UpService
  */
-class UpService {
-
+class UpService
+{
     /** @var Adapter */
     protected $adapter;
 
