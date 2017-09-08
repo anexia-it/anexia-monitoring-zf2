@@ -8,7 +8,7 @@ if the website is alive and working correctly.
 Install the module via composer, therefore adapt the ``require`` part of your ``composer.json``:
 ```
 "require": {
-    "anexia/zf2-monitoring": "1.1.0"
+    "anexia/zf2-monitoring": "1.2.0"
 },
 ```
 
@@ -52,7 +52,7 @@ HTTP_STATUS code if the token is not defined or invalid, or will return a 200 HT
 
 Returns all a list with platform and composer package information.
 
-**URL:** `/anxapi/v1/modules/?access_token=custom_access_token`
+**URL:** `/anxapi/v1/modules?access_token=custom_access_token`
 
 Response headers:
 ```
@@ -94,7 +94,7 @@ Response body:
 This endpoint can be used to verify if the application is alive and working correctly. It checks if the database
 connection is working. It allows to register custom checks by using hooks.
 
-**URL:** `/anxapi/v1/up/?access_token=custom_access_token`
+**URL:** `/anxapi/v1/up?access_token=custom_access_token`
 
 Response headers:
 ```
