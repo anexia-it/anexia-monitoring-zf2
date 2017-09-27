@@ -1,12 +1,12 @@
 {
     "name": "anexia/zf2-monitoring",
-    "description": "A zf2 module to monitor runtime (php, zf2) versions, composer package versions and composer package licenses",
+    "description": "A zf2 module to monitor runtime (php, zf2) versions, composer package versions and composer package licences",
     "license": "MIT",
-    "version": "1.2.0",
+    "version": "1.3.0",
     "autoload": {
         "psr-4": { "Anexia\\Monitoring\\": "src" }
     },
     "require": {
-        "anexia/composer-tools": "1.1.0"
+        "anexia/composer-tools": "1.2.0"
     }
 }

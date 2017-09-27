@@ -67,25 +67,37 @@ Response body:
 ```
 {
    "runtime":{
-      "platform":"php",
-      "platform_version":"7.0.19",
-      "framework":"zend",
-      "framework_installed_version":"2.4",
-      "framework_newest_version":"3.0.1"
-   },
-   "modules":[
-      {
-         "name":"package-1",
-         "installed_version":"3.1.10",
-         "newest_version":"3.3.2"
+         "platform":"php",
+         "platform_version":"7.0.19",
+         "framework":"laravel",
+         "framework_installed_version":"5.4.28",
+         "framework_newest_version":"5.4.28"
       },
-      {
-         "name":"package-2",
-         "installed_version":"1.4",
-         "newest_version":"1.4"
-      },
-      ...
-   ]
+      "modules":[
+         {
+            "name":"package-1",
+            "installed_version":"3.1.10",
+            "installed_version_licences":[
+               "BSD-2-Clause"
+            ],
+            "newest_version":"3.3.2",
+            "newest_version_licences":[
+               "BSD-3-Clause"
+            ]
+         },
+         {
+            "name":"package-2",
+            "installed_version":"1.4",
+            "installed_version_licences":[
+               "MIT"
+            ],
+            "newest_version":"1.4",
+            "newest_version_licences":[
+               "MIT"
+            ]
+         },
+         ...
+      ]
 }
 ```
 
@@ -149,7 +161,7 @@ To add further up checks a customized service can be defined. This service must 
 ``Anexia\Monitoring\Service\UpCheckServiceInterface`` and must be available as ``Anexia\Monitoring\Service\UpCheck``.
 Therefore two steps are necessary:
 
-Add a new service class (and its factory) to the project source code tree, e.g.:
+1) Add a new service class (and its factory) to the project source code tree, e.g.:
 ```php
 <?php
 // new service class /module/Application/Service/UpCheckService.php
@@ -205,7 +217,7 @@ class UpCheckServiceFactory implements FactoryInterface
 }
 ```
 
-Declare the new service class to be used (via its factory) as ``Anexia\Monitoring\Service\UpCheck`` in the service's
+2) Declare the new service class to be used (via its factory) as ``Anexia\Monitoring\Service\UpCheck`` in the service's
 ``module.config.php``, e.g.:
 ```php
 <?php
