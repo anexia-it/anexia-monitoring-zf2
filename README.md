@@ -8,7 +8,7 @@ if the website is alive and working correctly.
 Install the module via composer, therefore adapt the ``require`` part of your ``composer.json``:
 ```
 "require": {
-    "anexia/zf2-monitoring": "1.2.0"
+    "anexia/zf2-monitoring": "1.3.0"
 },
 ```
 
